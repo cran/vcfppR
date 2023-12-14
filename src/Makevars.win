@@ -1,0 +1,25 @@
+HTSLIB_DIR=htslib-1.18
+PKG_CPPFLAGS=-I. -I${HTSLIB_DIR} -D_FILE_OFFSET_BITS=64
+PKG_LIBS=${HTSLIB_DIR}/libhts.a -lz -lm -lbz2 -llzma -lcurl -lbcrypt -lidn2 -lunistring -liconv -lssl -lcrypto -lcrypt32 -lwsock32 -lwldap32 -lssh2 -lgcrypt -lgpg-error -lws2_32 -lzstd -lregex
+
+.PHONY: all clean HTSLIB
+
+all : $(SHLIB)
+
+$(SHLIB) : HTSLIB
+
+# CC=$(shell "R CMD config CC")
+# CXX=$(shell "R CMD config CXX")
+# CPPFLAGS=$(shell "R CMD config CPPFLAGS")
+# LDFLAGS=$(shell "R CMD config LDFLAGS")
+
+HTSLIB:
+	cd ${HTSLIB_DIR} && $(MAKE) -f Makefile.win libhts.a && cd ..
+
+
+clean:
+	$(RM) *.o
+	$(RM) *.dll
+	$(RM) *.so
+	$(RM) *.dylib
+	(cd "${HTSLIB_DIR}" && $(MAKE) clean && cd -)
