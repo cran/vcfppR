@@ -91,9 +91,13 @@ Type the name of the class to see the details and methods
 
 \item{\code{nsamples}}{Return the number of samples}
 
-\item{\code{string}}{Return the raw string of current variant}
+\item{\code{samples}}{Return a vector of samples id}
 
 \item{\code{header}}{Return the raw string of the vcf header}
+
+\item{\code{string}}{Return the raw string of current variant including newline}
+
+\item{\code{line}}{Return the raw string of current variant without newline}
 
 \item{\code{output}}{Init an output object for streaming out the variants to another vcf}
 
@@ -146,6 +150,9 @@ Type the name of the class to see the details and methods
 \item Parameter: s - A string for the tag value}}
 
 \item{\code{rmInfoTag}}{Remove the given tag from the INFO of current variant
+\itemize{\item Parameter: s - A string for the tag name}}
+
+\item{\code{rmFormatTag}}{Remove the given tag from the FORMAT of current variant
 \itemize{\item Parameter: s - A string for the tag name}}
 
 \item{\code{setVariant}}{Modify current variant by adding a vcf line

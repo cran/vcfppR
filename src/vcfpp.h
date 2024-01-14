@@ -2,7 +2,7 @@
  * @file        https://github.com/Zilong-Li/vcfpp/vcfpp.h
  * @author      Zilong Li
  * @email       zilong.dk@gmail.com
- * @version     v0.3.2
+ * @version     v0.3.3
  * @breif       a single C++ file for manipulating VCF
  * Copyright (C) 2022-2023.The use of this code is governed by the LICENSE file.
  ******************************************************************************/
@@ -573,7 +573,7 @@ type as noted in the other overloading function.
     bool getFORMAT(std::string tag, std::vector<std::string> & v)
     {
         fmt = bcf_get_fmt(header.hdr, line, tag.c_str());
-        if(!fmt) throw std::runtime_error("there is no " + tag + " in FORMAT of this variant.\n");
+        if(!fmt) throw std::runtime_error("there is no " + tag + " in FORMAT for this variant of ID=" + ID());
         nvalues = fmt->n;
         // if ndst < (fmt->n+1)*nsmpl; then realloc is involved
         ret = -1, ndst = 0;
@@ -728,7 +728,7 @@ type as noted in the other overloading function.
             return true;
     }
 
-    /** remove the given tag from INFO*/
+    /** remove the given tag from INFO of the variant*/
     void removeINFO(std::string tag)
     {
         ret = -1;
@@ -783,6 +783,20 @@ type as noted in the other overloading function.
     {
         assert((int)v.size() == nsamples);
         gtPhase = v;
+    }
+    
+    /** remove the given tag from FORMAT of the variant*/
+    void removeFORMAT(std::string tag)
+    {
+        ret = -1;
+        int tag_id = bcf_hdr_id2int(header.hdr, BCF_DT_ID, tag.c_str());
+        if(bcf_hdr_id2type(header.hdr, BCF_HL_FMT, tag_id) == (BCF_HT_INT & 0xff))
+            ret = bcf_update_format_int32(header.hdr, line, tag.c_str(), NULL, 0);
+        else if(bcf_hdr_id2type(header.hdr, BCF_HL_FMT, tag_id) == (BCF_HT_STR & 0xff))
+            ret = bcf_update_format_char(header.hdr, line, tag.c_str(), NULL, 0);
+        else if(bcf_hdr_id2type(header.hdr, BCF_HL_FMT, tag_id) == (BCF_HT_REAL & 0xff))
+            ret = bcf_update_format_float(header.hdr, line, tag.c_str(), NULL, 0);
+        if(ret < 0) throw std::runtime_error("couldn't remove " + tag + " correctly.\n");
     }
 
     /**
@@ -1540,8 +1554,7 @@ class BcfWriter
     /// initial a VCF header by refering to another vcf header
     void initalHeader(const BcfHeader & h)
     {
-        header.hdr = h.hdr; // point to another header
-        if(header.hdr == NULL) throw std::runtime_error("couldn't copy the header from another vcf.\n");
+        if(header.hdr == NULL) header.hdr = h.hdr; // point to another header
     }
 
     /// write a string to a vcf line

@@ -7,6 +7,10 @@
 
 ![R-CMD-check](https://github.com/Zilong-Li/vcfppR/actions/workflows/check-release.yaml/badge.svg)
 <a href="https://github.com/Zilong-Li/random/blob/main/vcfppR.png"><img src="https://raw.githubusercontent.com/Zilong-Li/random/main/vcfppR.png" height="200" align="right" /></a>
+[![CRAN
+status](https://www.r-pkg.org/badges/version/vcfppR)](https://CRAN.R-project.org/package=vcfppR)
+![<https://github.com/Zilong-Li/vcfppR/releases/latest>](https://img.shields.io/github/v/release/Zilong-Li/vcfppR.svg)
+[![codecov](https://codecov.io/github/Zilong-Li/vcfppR/graph/badge.svg?token=QE1UFVRH98)](https://app.codecov.io/github/Zilong-Li/vcfppR)
 <!-- badges: end -->
 
 The vcfppR package implements various useful functions for manipulating
@@ -42,7 +46,7 @@ depend on your connection to the servers.
 ## Read VCF as tabular data in R
 
 This example shows how to read only SNP variants with genotypes in the
-VCF/BCF into R tables:
+VCF/BCF into R list:
 
 ``` r
 library(vcfppR)
@@ -51,8 +55,8 @@ res <- vcftable(vcffile, "chr21:1-5100000", vartype = "snps")
 str(res)
 ```
 
-This example shows how to read only SNP variants with PL format and drop
-the INFO column in the VCF/BCF into R tables:
+This example shows how to read only SNP variants with PL format into R
+list and drop the INFO column in the VCF/BCF:
 
 ``` r
 vcffile <- "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_raw_GT_with_annot/20201028_CCDG_14151_B01_GRM_WGS_2020-08-05_chr21.recalibrated_variants.vcf.gz"
@@ -61,7 +65,7 @@ str(res)
 ```
 
 This example shows how to read only indels variants with DP format in
-the VCF/BCF into R tables:
+the VCF/BCF into R list:
 
 ``` r
 vcffile <- "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_raw_GT_with_annot/20201028_CCDG_14151_B01_GRM_WGS_2020-08-05_chr21.recalibrated_variants.vcf.gz"
@@ -76,7 +80,7 @@ The data is from the 1000 Genome Project.
 
 ``` r
 vcffile <- "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_raw_GT_with_annot/20201028_CCDG_14151_B01_GRM_WGS_2020-08-05_chr21.recalibrated_variants.vcf.gz"
-region <- "chr21:10000000-10500000"
+region <- "chr21:10000000-10010000"
 res <- vcfsummary(vcffile, region)
 str(res)
 # get labels and do plottiing
@@ -96,10 +100,9 @@ discovered by GATK-SV.
 
 ``` r
 svfile <- "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20210124.SV_Illumina_Integration/1KGP_3202.gatksv_svtools_novelins.freeze_V3.wAF.vcf.gz"
-sv <- vcfsummary(svfile, svtype = TRUE)
+sv <- vcfsummary(svfile, svtype = TRUE, region = "chr20")
 str(sv)
 allsvs <- sv$summary[-1]
 bar <- barplot(allsvs, ylim = c(0, 1.1*max(allsvs)),
-               main = "Variant Count (all SVs)")
-text(bar, allsvs+4500, paste("n: ", allsvs, sep=""))
+               main = "Variant Counts on chr20 (all SVs)")
 ```

@@ -1,3 +1,20 @@
+# vcfppR 0.3.8
+
+* fix issues on M1 Mac
+
+# vcfppR 0.3.7
+
+* add `vcfreader@rmFormatTag()`
+* add `vcfreader@samples()`
+* `vcftable` supports vartype = 'sv'
+
+# vcfppR 0.3.6
+
+* add `vcfreader::line`
+* remove `vcfreader::setVariant`
+* bug fix `setFormatStr`
+* more units tests
+
 # vcfppR 0.3.5
 
 * add vcfreader and vcfwriter
