@@ -1,11 +1,11 @@
-ebab33c8e88179487ebbb38ef4868049 *DESCRIPTION
+314664b449e92d67fb8b00d3789b4697 *DESCRIPTION
 9f701cf95399af492ff936b84bab0f26 *LICENSE
 38711028b54e367edae9fa68943228a8 *NAMESPACE
-873b8acc166ecf6bdc7437d912202a88 *NEWS.md
+72bfb95a5f145139a0e6bffe5485f93b *NEWS.md
 e8fd3ad80e5ff1f3f09416a74e600bb0 *R/RcppExports.R
 f9318b5fa4c04472dbeeb7067b269a03 *R/vcf-popgen.R
 75955551bc7ab7d379d1f8204b1dc16d *R/vcf-summary.R
-91069aa4d2ce5f02e134091afeb36259 *R/vcf-tables.R
+a8a0716c82c933f57cd32c3aaf9c353c *R/vcf-tables.R
 051348c31edd370563f712abe6ea9422 *R/vcfppR-package.R
 d35cd799fd988b8a9092ec4858e038ea *R/zzz.R
 208f79161e6ebe90ce324ccb664ed601 *README.md
@@ -20,10 +20,10 @@ b817f9bcb4e303ace93e8ff8042a5abc *man/vcfpopgen.Rd
 5885b4095a1243b9a95c7979f525fb95 *man/vcfppR-package.Rd
 9d04f27a8cd13c247ba74ef434ca35bb *man/vcfreader.Rd
 477521757ab96a54f4f93e1ff7f4b6ac *man/vcfsummary.Rd
-c54aad58a1ec4d789ecc0c6c9a147771 *man/vcftable.Rd
+a0cb403a2ec04068f2bfdba23d203037 *man/vcftable.Rd
 274760e867e68d6b8d54e17f3fb64620 *man/vcfwriter.Rd
 3cf1a9e6866036272ce1bd643d94d7ba *src/Makevars
-4a9fe625a4dee35cb2d7baf918e191c8 *src/Makevars.win
+8738e5f54a351247aed2aeda0a926158 *src/Makevars.win
 503fffe481049f98c3a82c227801373a *src/RcppExports.cpp
 beae28af686c559e685093ce952aa596 *src/htslib-1.18/INSTALL
 045fbb89ea4242b92ae6bdbb288dde60 *src/htslib-1.18/LICENSE
@@ -545,5 +545,5 @@ d44c051dca3ba27f5f1946093e75ea61 *tests/testthat/test-modify-vcf.R
 ed826b936e5532ebe8a493f9e5820cb0 *tests/testthat/test-popgen.R
 98eb0a56fb5119b97c48ae1f211503f3 *tests/testthat/test-vcf-reader.R
 4c22b2328da895544f1e8586fd9e9c4b *tests/testthat/test-vcf-summary.R
-50922e99837286c24c56c44abb3a8d0c *tests/testthat/test-vcf-table.R
+2ede3ecb636b94e0f96718863428f052 *tests/testthat/test-vcf-table.R
 1a12c5c38cdc151e154c8f2ca99a502a *tests/testthat/test-vcf-writer.R
