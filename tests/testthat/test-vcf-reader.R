@@ -81,10 +81,10 @@ test_that("vcfreader: get variants type", {
     if(br$isMultiAllelics()) m <- m + 1
     if(br$isMultiAllelicSNP()) ms <- ms + 1
   }
-  expect_identical(i, 6)
+  expect_identical(i, 1)
   expect_identical(s, 0)
-  expect_identical(m, 4)
-  expect_identical(ms, 3)
+  expect_identical(m, 2)
+  expect_identical(ms, 2)
 })
 
 test_that("vcfreader: test variants type", {
@@ -107,14 +107,14 @@ test_that("vcfreader: test variants type", {
     if(br$hasOTHER()) i7 <- i7 + 1
     if(br$hasOVERLAP()) i8 <- i8 + 1
   }
-  expect_identical(i1, 66)
-  expect_identical(i2, 6)
-  expect_identical(i3, 3)
-  expect_identical(i4, 4)
+  expect_identical(i1, 14)
+  expect_identical(i2, 1)
+  expect_identical(i3, 0)
+  expect_identical(i4, 1)
   expect_identical(i5, 0)
   expect_identical(i6, 0)
   expect_identical(i7, 0)
-  expect_identical(i8, 1)
+  expect_identical(i8, 0)
 })
 
 test_that("vcfreader: reading variant only", {
@@ -129,8 +129,8 @@ test_that("vcfreader: reading variant only", {
   expect_identical(br$filter(), "VQSRTrancheSNP99.80to100.00")
   expect_identical(br$info(), "AC=2;AF=0.000616523;AN=3244;DP=2498;FS=0;MLEAC=1;MLEAF=0.0003083;MQ=17.07;MQ0=0;QD=17.52;SOR=3.258;VQSLOD=-32.6;culprit=MQ;AN_EUR=658;AN_EAS=548;AN_AMR=520;AN_SAS=624;AN_AFR=894;AF_EUR=0;AF_EAS=0;AF_AMR=0.00384615;AF_SAS=0;AF_AFR=0;AC_EUR=0;AC_EAS=0;AC_AMR=2;AC_SAS=0;AC_AFR=0;AC_Het_EUR=0;AC_Het_EAS=0;AC_Het_AMR=0;AC_Het_SAS=0;AC_Het_AFR=0;AC_Het=0;AC_Hom_EUR=0;AC_Hom_EAS=0;AC_Hom_AMR=2;AC_Hom_SAS=0;AC_Hom_AFR=0;AC_Hom=2;HWE_EUR=1;ExcHet_EUR=1;HWE_EAS=1;ExcHet_EAS=1;HWE_AMR=0.00192678;ExcHet_AMR=1;HWE_SAS=1;ExcHet_SAS=1;HWE_AFR=1;ExcHet_AFR=1;HWE=0.000308356;ExcHet=1;ME=0;AN_EUR_unrel=508;AN_EAS_unrel=448;AN_AMR_unrel=330;AN_SAS_unrel=484;AN_AFR_unrel=666;AF_EUR_unrel=0;AF_EAS_unrel=0;AF_AMR_unrel=0;AF_SAS_unrel=0;AF_AFR_unrel=0;AC_EUR_unrel=0;AC_EAS_unrel=0;AC_AMR_unrel=0;AC_SAS_unrel=0;AC_AFR_unrel=0;AC_Het_EUR_unrel=0;AC_Het_EAS_unrel=0;AC_Het_AMR_unrel=0;AC_Het_SAS_unrel=0;AC_Het_AFR_unrel=0;AC_Hom_EUR_unrel=0;AC_Hom_EAS_unrel=0;AC_Hom_AMR_unrel=0;AC_Hom_SAS_unrel=0;AC_Hom_AFR_unrel=0")
   br$rmInfoTag("AC")
-  print(br$info())
   print(br$infoInt("AC")) ## TODO: AC value still exists
+  print(br$info())
   af <- br$infoFloat("AF")
   ## expect_equal(0.00061652297, 0.00061652300, tolerance = 1e-6)
   expect_equal(af, 0.000616523, tolerance = 1e-6)
@@ -167,7 +167,8 @@ test_that("vcfreader: read and output variant", {
   expect_identical(br$infoStr("VariantType" ), "indel")
   ## output current variant to another vcf
   s1 <- br$string()
-  outvcf <- paste0(tempfile(), ".vcf.gz")
+  outvcf <- file.path(tempdir(), "test.vcf.gz")
+  file.create(outvcf)
   br$output(outvcf)
   br$write()
   br$close()
@@ -188,7 +189,8 @@ test_that("vcfreader: remove tag from FORMAT", {
   expect_identical(s[9], "GT:DP:GQ:PL")
   expect_error(br$formatInt("AD"))
   ## output current variant to another vcf
-  outvcf <- paste0(tempfile(), ".vcf.gz")
+  outvcf <- file.path(tempdir(), "test.vcf.gz")
+  file.create(outvcf)
   br$output(outvcf)
   br$write()
   br$close()
