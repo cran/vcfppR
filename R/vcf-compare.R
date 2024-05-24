@@ -5,7 +5,7 @@
 #' \code{vcfcomp} implements various statisitcs to compare two VCF/BCF files,
 #' e.g. report genotype concocrdance, correlation stratified by allele frequency.
 #' 
-#' @param test path to the first VCF/BCF file referred as test.
+#' @param test path to the first VCF/BCF file referred as test, or saved RDS file.
 #'
 #' @param truth path to the second VCF/BCF file referred as truth, or saved RDS file.
 #'
@@ -16,6 +16,7 @@
 #'              "r2": pearson correlation coefficient ** 2.
 #'              "f1": F1-score, good balance between sensitivity and precision.
 #'              "nrc": Non-Reference Concordance rate
+#'              "pse": Phasing Switch Error rate
 #' 
 #' @param by.sample logical. calculate concordance for each samples, then average by bins.
 #' 
@@ -33,6 +34,10 @@
 #' 
 #' @param out output prefix for saving objects into RDS file
 #'
+#' @param choose_random_start choose random start for stats="pse"
+#'
+#' @param return_pse_sites boolean. return phasing switch error sites
+#'
 #' @param ... options passed to \code{vcftable}
 #'
 #' @return a list of various statistics
@@ -47,8 +52,8 @@
 #' str(res)
 #' @export
 vcfcomp <- function(test, truth,
-                    stats = "all",
                     formats = c("DS", "GT"),
+                    stats = "r2",
                     by.sample = FALSE,
                     by.variant = FALSE,
                     flip = FALSE,
@@ -56,6 +61,8 @@ vcfcomp <- function(test, truth,
                     bins = NULL,
                     af = NULL,
                     out = NULL,
+                    choose_random_start = FALSE,
+                    return_pse_sites = FALSE,
                     ...) {
   if(is.null(bins)){
     bins <- sort(unique(c(
@@ -66,35 +73,40 @@ vcfcomp <- function(test, truth,
       seq(0.1, 0.5, length.out = 5)
     )))
   }
-  if((stats=="f1" | stats == "nrc") & (formats[1] != "GT") & (stats != "all")) {
-    message("F1 score or NRC rate use GT format")
+  if((stats=="f1" | stats == "nrc" | stats == "pse") & (formats[1] != "GT") & (stats != "all")) {
+    message("stats F1 or NRC or PSE only uses GT format")
     formats[1] <- "GT"
   }
-  d1 <- vcftable(test, format = formats[1], setid = TRUE, ...)
-  d2 <- tryCatch( { suppressWarnings(readRDS(truth)) }, error = function(e) {
-    vcftable(truth, format = formats[2], setid = TRUE, ...)
+  collapse <- ifelse(stats=="pse", FALSE, TRUE)
+  d1 <- tryCatch( { suppressWarnings(readRDS(test)) }, error = function(e) {
+    vcftable(test, format = formats[1], setid = TRUE, collapse = collapse, ...)
   } )
-  if(length(d1$samples)!=length(d2$samples))
-    stop("the number of samples in two VCF files is inconsistent. check out option `samples`")
+  d2 <- tryCatch( { suppressWarnings(readRDS(truth)) }, error = function(e) {
+    vcftable(truth, format = formats[2], setid = TRUE, collapse = collapse, ...)
+  } )
   if(!is.null(names) & is.vector(names)) d1$samples <- names
-  sites <- intersect(d1$id,  d2$id)
   ## chr pos ref alt af
+  sites <- intersect(d1$id,  d2$id)
   if(!is.null(af)){
     af <- tryCatch( { suppressWarnings(readRDS(af)) }, error = function(e) {
       af <- read.table(af, header = TRUE)
       af$id <- paste0(af[,"chr"], "_", af[,"pos"], "_", af[,"ref"], "_", af[,"alt"])
-      subset(af, select = c(id, af))
+      aaf <- af[,"af"]
+      names(aaf) <- af[,"id"]
+      aaf
     } )
-    sites <-  intersect(af[,"id"], sites) ## use intersect sites only
+    sites <-  intersect(names(af), sites) ## use intersect sites only
   }
   ## save some useful objects
   if(!is.null(out)){
     saveRDS(af, file.path(paste0(out, ".af.rds")))
+    saveRDS(test, file.path(paste0(out, ".test.rds")))
     saveRDS(truth, file.path(paste0(out, ".truth.rds")))
   }
   ord <- match(d1$samples, d2$samples)
   if(is.na(sum(ord)))
     stop("the samples name in two VCF files is inconsistent. please set `names`")
+  if(!collapse) ord <- c(sapply(ord, function(i) c(2*i-1, 2*i)))
   ds <- d1[[10]]
   ds <- ds[match(sites, d1$id), ]
   gt <- d2[[10]]
@@ -104,7 +116,7 @@ vcfcomp <- function(test, truth,
   if(is.null(af)){
     af <- rowMeans(gt, na.rm = TRUE) / 2
   } else {
-    af <- af[match(sites, af[,"id"]), "af"]
+    af <- af[match(sites, names(af))]
   }
   names(af) <- sites
   if(stats == "all") {
@@ -122,16 +134,20 @@ vcfcomp <- function(test, truth,
                                   flip = flip, per_ind = by.sample, per_snp = by.variant)
     res.nrc <- concordance_by_freq(gt, ds, bins, af, NRC, which_snps = sites,
                                    flip = flip, per_ind = by.sample, per_snp = by.variant)
-    return(list(samples = d1$samples, r2=res.r2, f1=res.f1, nrc=res.nrc))
+    ret <- list(samples = d1$samples, r2=res.r2, f1=res.f1, nrc=res.nrc)
   } else {
     res <- switch(stats,
+                  pse = PSE(ds, gt, sites, choose_random_start, return_pse_sites),
                   r2 = concordance_by_freq(gt, ds, bins, af, R2, which_snps = sites,
                                            flip = flip, per_ind = by.sample, per_snp = by.variant),
                   f1 = concordance_by_freq(gt, ds, bins, af, F1, which_snps = sites,
                                            flip = flip, per_ind = by.sample, per_snp = by.variant),
                   nrc = concordance_by_freq(gt, ds, bins, af, NRC, which_snps = sites,
                                             flip = flip, per_ind = by.sample, per_snp = by.variant))
-    return(list(samples = d1$samples, stats = res))
+    ret <- list(d1$samples, res)
+    names(ret) <- c("samples", stats)
   }
+  class(ret) <- "vcfcomp"
+  return(ret)
 }
 
