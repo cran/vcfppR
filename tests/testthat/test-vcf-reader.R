@@ -181,13 +181,20 @@ test_that("vcfreader: read and output variant", {
 
 test_that("vcfreader: remove tag from FORMAT", {
   br <- vcfreader$new(vcffile)
-  br$variant()
+  br$variant()  ## first variant
   s <- unlist(strsplit(br$line(), "\t"))
   expect_identical(s[9], "GT:AD:DP:GQ:PL")
+  br$variant()  ## second variant
   br$rmFormatTag("AD")
+  br$rmFormatTag("AB")
+  br$rmFormatTag("PGT")
+  br$rmFormatTag("PID")
   s <- unlist(strsplit(br$line(), "\t"))
   expect_identical(s[9], "GT:DP:GQ:PL")
-  expect_error(br$formatInt("AD"))
+  expect_identical(s[10], "1/1:2:6:64,6,0")
+  ## AD was removed, so we get integer(0)
+  ad <- br$formatInt("AD")
+  expect_identical(length(ad),0L)
   ## output current variant to another vcf
   outvcf <- file.path(tempdir(), "test.vcf.gz")
   file.create(outvcf)
@@ -199,5 +206,41 @@ test_that("vcfreader: remove tag from FORMAT", {
   br$variant()
   s <- unlist(strsplit(br$line(), "\t"))
   expect_identical(s[9], "GT:DP:GQ:PL")
+  expect_identical(s[10], "1/1:2:6:64,6,0")
+  ## AD doesn't exist. so we get error, is this a bad design?
   expect_error(br$formatInt("AD"))
+})
+
+
+test_that("can set genotypes for single sample", {
+  
+  br <- vcfreader$new(svfile, "", "HG00096")
+  br$variant()
+  br$genotypes(F)
+  br$setGenotypes(c(1L,1L))
+  outfile <- paste0(tempfile(), ".vcf.gz")
+  br$output(outfile)
+  br$write()
+  br$close()
+
+  vcf <- vcftable(outfile)
+  expect_true(vcf$gt==2)
+  
+})
+
+test_that("can change samples name and set genotypes for single sample", {
+  
+  br <- vcfreader$new(svfile, "", "HG00096")
+  br$variant()
+  br$genotypes(F)
+  br$setGenotypes(c(1L,1L))
+  outfile <- paste0(tempfile(), ".vcf.gz")
+  br$output(outfile)
+  br$updateSamples("ZZZZZ")
+  br$write()
+  br$close()
+
+  vcf <- vcftable(outfile)
+  expect_true(vcf$gt==2)
+  expect_true(vcf$samples=="ZZZZZ")
 })

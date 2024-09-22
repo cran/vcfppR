@@ -56,6 +56,9 @@ using namespace std;
 //' @field string Return the raw string of current variant including newline
 //' @field line Return the raw string of current variant without newline
 //' @field output Init an output object for streaming out the variants to another vcf
+//' @field updateSamples update samples name in the output VCF
+//' \itemize{
+//' \item Parameter: s - A comma-seperated string for new samples names}
 //' @field write Streaming out current variant the output vcf
 //' @field close Close the connection to the output vcf
 //' @field setCHR Modify the CHR of current variant \itemize{ \item Parameter: s - A string for CHR}
@@ -138,6 +141,7 @@ class vcfreader {
         if (!samples.empty()) br.setSamples(samples);
         if (!region.empty()) br.setRegion(region);
         var.initHeader(br.header);
+        samples_in = samples;
     }
 
     ~vcfreader() {}
@@ -155,30 +159,42 @@ class vcfreader {
 
     int infoInt(std::string tag) {
         int i;
-        var.getINFO(tag, i);
-        return i;
+        if (var.getINFO(tag, i)) {
+            return i;
+        } else {
+            return NA_INTEGER;
+        }
     }
     double infoFloat(std::string tag) {
         float f;
-        var.getINFO(tag, f);
-        return (double)f;
+        if (var.getINFO(tag, f)) {
+            return (double)f;
+        } else {
+            return NA_REAL;
+        }
     }
     std::string infoStr(std::string tag) {
-        std::string s;
+        std::string s{""};
         var.getINFO(tag, s);
         return s;
     }
     vector<int> infoIntVec(std::string tag) {
-        var.getINFO(tag, v_int);
-        return v_int;
+        if (var.getINFO(tag, v_int)) {
+            return v_int;
+        } else {
+            return vector<int>();
+        }
     }
     vector<double> infoFloatVec(std::string tag) {
-        var.getINFO(tag, v_float);
-        return vector<double>(v_float.begin(), v_float.end());
+        if (var.getINFO(tag, v_float)) {
+            return vector<double>(v_float.begin(), v_float.end());
+        } else {
+            return vector<double>();
+        }
     }
 
     vector<int> genotypes(bool collapse) {
-        var.getGenotypes(v_int);
+        if (!var.getGenotypes(v_int)) { return vector<int>(); }
         if (var.ploidy() == 2 && collapse) {
             for (size_t i = 0; i < v_int.size(); i += 2) {
                 v_int[i + 1] += v_int[i];
@@ -197,7 +213,7 @@ class vcfreader {
     }
 
     vector<int> formatInt(std::string tag) {
-        var.getFORMAT(tag, v_int);
+        if (!var.getFORMAT(tag, v_int)) { return vector<int>(); }
         int nvals = v_int.size() / br.nsamples;  // how many values per sample
         for (int i = 0; i < br.nsamples; i++) {
             for (int j = 0; j < nvals; j++)
@@ -211,7 +227,7 @@ class vcfreader {
 
     vector<double> formatFloat(std::string tag) {
         vector<double> vecd;
-        var.getFORMAT(tag, v_float);
+        if (!var.getFORMAT(tag, v_float)) return vecd;
         int nvals = v_float.size() / br.nsamples;  // how many values per sample
         vecd.resize(v_float.size());
         for (int i = 0; i < br.nsamples; i++) {
@@ -226,8 +242,11 @@ class vcfreader {
     }
 
     vector<std::string> formatStr(std::string tag) {
-        var.getFORMAT(tag, v_str);
-        return v_str;
+        if (var.getFORMAT(tag, v_str)) {
+            return v_str;
+        } else {
+            return vector<std::string>();
+        }
     }
 
     inline bool isSNP() const { return var.isSNP(); }
@@ -260,32 +279,51 @@ class vcfreader {
     // WRITE
     inline void output(const std::string& vcffile) {
         bw.open(vcffile);
-        bw.copyHeader(fin);
-        var.resetHeader(bw.header);
+        bw.initalHeader(br.header);
         writable = true;
     }
+    inline void modify() {
+        bw.copyHeader(fin);
+        if (!samples_in.empty()) bw.header.setSamples(samples_in);
+        var.resetHeader(bw.header);
+        modifiable = true;
+    }
+    inline void updateSamples(const std::string& s) {
+        if (!modifiable) { modify(); }
+        bw.header.updateSamples(s);
+    }
     inline void write() {
-        if (writable) bw.writeRecord(var);
+        if (writable) {
+            bw.writeRecord(var);
+        } else {
+            Rcpp::Rcout << "please call the `output()` function first to creat an output VCF\n";
+        }
     }
     inline void close() {
-        if (writable) bw.close();
+        if (writable) {
+            bw.close();
+        } else {
+            Rcpp::Rcout << "please call the `output()` function first to creat an output VCF\n";
+        }
     }
 
-    inline void setCHR(std::string s) { var.setCHR(s.c_str()); }
-    inline void setID(std::string s) { var.setID(s.c_str()); }
+    inline void setCHR(const std::string& s) { var.setCHR(s); }
+    inline void setID(const std::string& s) { var.setID(s); }
     inline void setPOS(int pos) { var.setPOS(pos); }
-    inline void setRefAlt(const std::string& s) { var.setRefAlt(s.c_str()); }
-    inline bool setInfoInt(std::string tag, int v) { return var.setINFO(tag, v); }
-    inline bool setInfoFloat(std::string tag, double v) { return var.setINFO(tag, v); }
-    inline bool setInfoStr(std::string tag, const std::string& s) { return var.setINFO(tag, s); }
-    inline bool setFormatInt(std::string tag, const vector<int>& v) {
+    inline void setRefAlt(const std::string& s) { var.setRefAlt(s); }
+    inline bool setInfoInt(const std::string& tag, int v) { return var.setINFO(tag, v); }
+    inline bool setInfoFloat(const std::string& tag, double v) { return var.setINFO(tag, v); }
+    inline bool setInfoStr(const std::string& tag, const std::string& s) {
+        return var.setINFO(tag, s);
+    }
+    inline bool setFormatInt(const std::string& tag, const vector<int>& v) {
         return var.setFORMAT(tag, v);
     }
-    inline bool setFormatFloat(std::string tag, const vector<double>& v) {
+    inline bool setFormatFloat(const std::string& tag, const vector<double>& v) {
         vector<float> f(v.begin(), v.end());
         return var.setFORMAT(tag, f);
     }
-    inline bool setFormatStr(std::string tag, const std::string& s) {
+    inline bool setFormatStr(const std::string& tag, const std::string& s) {
         if (s.length() % nsamples() != 0) {
             Rcpp::Rcout << "the length of s must be divisable by nsamples()";
             return false;
@@ -305,25 +343,31 @@ class vcfreader {
         var.setPhasing(c);
     }
 
-    inline void rmInfoTag(std::string s) { var.removeINFO(s); }
-    inline void rmFormatTag(std::string s) { var.removeFORMAT(s); }
+    inline void rmInfoTag(const std::string& s) { var.removeINFO(s); }
+    inline void rmFormatTag(const std::string& s) { var.removeFORMAT(s); }
     inline void addINFO(const std::string& id, const std::string& number, const std::string& type,
                         const std::string& desc) {
-        if (writable)
-            bw.header.addINFO(id, number, type, desc);
-        else
-            Rcpp::Rcout << "please call the `output(filename)` function first\n";
+        if (!writable) {
+            Rcpp::Rcout << "please call the `output()` function first to creat an output VCF\n";
+            return;
+        }
+        if (!modifiable) { modify(); }
+        bw.header.addINFO(id, number, type, desc);
     }
     inline void addFORMAT(const std::string& id, const std::string& number, const std::string& type,
                           const std::string& desc) {
-        if (writable)
-            bw.header.addFORMAT(id, number, type, desc);
-        else
-            Rcpp::Rcout << "please call the `output(filename)` function first\n";
+        if (!writable) {
+            Rcpp::Rcout << "please call the `output()` function first to creat an output VCF\n";
+            return;
+        }
+        if (!modifiable) { modify(); }
+        bw.header.addFORMAT(id, number, type, desc);
     }
 
    private:
+    bool modifiable = false;
     bool writable = false;
+    std::string samples_in = "";
     const std::string fin;
     vcfpp::BcfReader br;
     vcfpp::BcfRecord var;
@@ -380,6 +424,7 @@ RCPP_MODULE(vcfreader) {
         .method("string", &vcfreader::string)
         .method("line", &vcfreader::line)
         .method("output", &vcfreader::output)
+        .method("updateSamples", &vcfreader::updateSamples)
         .method("write", &vcfreader::write)
         .method("close", &vcfreader::close)
         .method("setCHR", &vcfreader::setCHR)
