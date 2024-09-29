@@ -1,6 +1,6 @@
 Package: vcfppR
 Title: Rapid Manipulation of the Variant Call Format (VCF)
-Version: 0.5.0
+Version: 0.6.0
 Authors@R: c(
     person("Zilong", "Li", , "zilong.dk@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5859-2078")),
@@ -23,11 +23,11 @@ BugReports: https://github.com/Zilong-Li/vcfppR/issues
 License: MIT + file LICENSE
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2024-09-22 08:55:31 UTC; zilong
+Packaged: 2024-09-28 14:15:11 UTC; rlk420
 Author: Zilong Li [aut, cre] (<https://orcid.org/0000-0001-5859-2078>),
   Bonfield, James K and Marshall, John and Danecek, Petr and Li, Heng and
     Ohan, Valeriu and Whitwham, Andrew and Keane, Thomas and Davies,
     Robert M [cph] (Authors of included htslib library)
 Maintainer: Zilong Li <zilong.dk@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-09-22 09:20:02 UTC
+Date/Publication: 2024-09-29 22:40:02 UTC
