@@ -1,4 +1,4 @@
-d6c6ce13d2d83c3fcd4e9a13cb0b5b20 *DESCRIPTION
+97ee0c1adb6827185513daf775871673 *DESCRIPTION
 9f701cf95399af492ff936b84bab0f26 *LICENSE
 2f8c2a00cae20585892def0958db97e6 *NAMESPACE
 c86821498290c8fe61c949af2855a82b *NEWS.md
@@ -15,7 +15,7 @@ d35cd799fd988b8a9092ec4858e038ea *R/zzz.R
 1ae8a12da89b235fee8b16d421d561b2 *build/vignette.rds
 16a8e56f7539aa60a309c2801dfe9261 *cleanup
 16a8e56f7539aa60a309c2801dfe9261 *cleanup.win
-eb2d709b341cf795c9479f2409f1def9 *configure
+1dccab8d1b262e43ade30716d3133a71 *configure
 6aa4b572d4232e95a9ed7a7170c0de1c *configure.win
 dd259bf1e5bf954a3fa8e523c71e916c *inst/CITATION
 9db56d4cb85f7a9df9e60e24b86b35d3 *inst/COPYRIGHTS
@@ -61,10 +61,10 @@ f5557ae864dddf90598ee810523effef *src/htslib-1.21/bcf_sr_sort.h
 b5796965b73ef54e3a54fa2024dc5360 *src/htslib-1.21/builddir_vars.mk.in
 e8d73cefb6eef5a933e3552bcf1850fb *src/htslib-1.21/config.guess
 56ad711a0c6e5992f07fa2af18ffb6ba *src/htslib-1.21/config.h.in
-ea1b37595db6bc03d4437844b46ee86a *src/htslib-1.21/config.log
+cf14dbebcb64c514c1d677568f6cd816 *src/htslib-1.21/config.log
 62ca7b951517da61fcc6d77676930b7e *src/htslib-1.21/config.mk
 2578b0763bf72b8bb6c7c2e96061915a *src/htslib-1.21/config.mk.in
-e06841c4f2e7941abbe05a56a69cf0f6 *src/htslib-1.21/config.status
+7408c7b5001da987f1343421d0bf39bd *src/htslib-1.21/config.status
 45c1d61d9e0b95c49e82a5fbf13a963f *src/htslib-1.21/config.sub
 b664fca8b170211e043c25e0cb3d9015 *src/htslib-1.21/configure
 9e6ce686100fba3c689f3534ad0f6304 *src/htslib-1.21/configure.ac

@@ -639,7 +639,7 @@ configure:5639: $? = 0
 configure:5639: result: yes
 configure:5645: checking for srand48_deterministic
 configure:5645: gcc -o conftest  -Wall -O2 -fPIC -fvisibility=hidden  -Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -fvisibility=hidden conftest.c  >&5
-/usr/bin/ld: /tmp/cc8ueQ6Z.ltrans0.ltrans.o: in function `main':
+/usr/bin/ld: /tmp/ccM352qr.ltrans0.ltrans.o: in function `main':
 <artificial>:(.text.startup+0x9): undefined reference to `srand48_deterministic'
 collect2: error: ld returned 1 exit status
 configure:5645: $? = 1
@@ -736,7 +736,7 @@ conftest.c:51:6: warning: conflicting types for built-in function 'log'; expecte
       |      ^~~
 conftest.c:1:1: note: 'log' is declared in header '<math.h>'
     1 | /* confdefs.h */
-/usr/bin/ld: /tmp/ccAVGASi.ltrans0.ltrans.o: in function `main':
+/usr/bin/ld: /tmp/ccq7ISYA.ltrans0.ltrans.o: in function `main':
 <artificial>:(.text.startup+0x9): undefined reference to `log'
 collect2: error: ld returned 1 exit status
 configure:5907: $? = 1
@@ -855,7 +855,7 @@ configure:6596: $? = 0
 configure:6608: result: yes
 configure:6754: checking for CCHmac
 configure:6754: gcc -o conftest  -Wall -O2 -fPIC -fvisibility=hidden  -Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -fvisibility=hidden conftest.c -ldeflate -llzma -lbz2 -lz -lm  >&5
-/usr/bin/ld: /tmp/ccHlhSgQ.ltrans0.ltrans.o: in function `main':
+/usr/bin/ld: /tmp/ccwiIwjI.ltrans0.ltrans.o: in function `main':
 <artificial>:(.text.startup+0x9): undefined reference to `CCHmac'
 collect2: error: ld returned 1 exit status
 configure:6754: $? = 1
@@ -941,7 +941,7 @@ configure: failed program was:
 configure:6754: result: no
 configure:6762: checking for library containing HMAC
 configure:6798: gcc -o conftest  -Wall -O2 -fPIC -fvisibility=hidden  -Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -fvisibility=hidden conftest.c -ldeflate -llzma -lbz2 -lz -lm  >&5
-/usr/bin/ld: /tmp/cc68f5oa.ltrans0.ltrans.o: in function `main':
+/usr/bin/ld: /tmp/ccvHZF9Q.ltrans0.ltrans.o: in function `main':
 <artificial>:(.text.startup+0x9): undefined reference to `HMAC'
 collect2: error: ld returned 1 exit status
 configure:6798: $? = 1
